@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>公考刷题助手</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:Microsoft YaHei}
+        body{background:#f0f2f5;padding:20px}
+        .container{max-width:800px;margin:0 auto;background:#fff;border-radius:12px}
+        .header{background:#2c3e50;color:#fff;padding:15px;text-align:center}
+        .chat-box{height:500px;padding:20px;overflow-y:auto;background:#f8f9fa}
+        .message{margin-bottom:15px;display:flex}
+        .user{justify-content:flex-end}
+        .ai{justify-content:flex-start}
+        .bubble{max-width:70%;padding:12px 16px;border-radius:18px;line-height:1.5;white-space:pre-line}
+        .user .bubble{background:#409eff;color:#fff}
+        .ai .bubble{background:#e5e6eb;color:#333}
+        .input-area{display:flex;padding:15px;border-top:1px solid #eee}
+        input{flex:1;padding:12px;border:1px solid #ddd;border-radius:24px;outline:0}
+        button{margin-left:10px;padding:12px 24px;background:#409eff;color:#fff;border:none;border-radius:24px}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>公考刷题助手</h2>
+        </div>
+        <div class="chat-box" id="chatBox"></div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="输入：常识/言语/判断/数量/申论/统计/错题">
+            <button onclick="sendMessage()">发送</button>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function(){
+            addMessage("👋 欢迎使用公考刷题助手\n\n支持题型：\n常识、言语、判断、数量、申论\n\n使用方式：\n• 输入题型名开始刷题\n• 输入A/B/C/D进行作答\n• 输入“统计”查看正确率\n• 输入“错题”查看错题本", 'ai');
+        }
+
+        function sendMessage(){
+            const input = document.getElementById('userInput');
+            const msg = input.value.trim();
+            if(!msg) return;
+            addMessage(msg, 'user');
+            input.value = '';
+
+            fetch('/chat', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({msg:msg})
+            }).then(res=>res.json()).then(data=>{
+                addMessage(data.content, 'ai');
+            })
+        }
+
+        function addMessage(text, sender){
+            const box = document.getElementById('chatBox');
+            const div = document.createElement('div');
+            div.className = 'message '+sender;
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.textContent = text;
+            div.appendChild(bubble);
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        document.getElementById('userInput').addEventListener('keypress',e=>{
+            if(e.key==='Enter') sendMessage()
+        })
+    </script>
+</body>
+</html>
