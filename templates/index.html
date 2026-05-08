@@ -2,72 +2,461 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>公考刷题助手</title>
+    <title>公考智能刷题助手</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;font-family:Microsoft YaHei}
-        body{background:#f0f2f5;padding:20px}
-        .container{max-width:800px;margin:0 auto;background:#fff;border-radius:12px}
-        .header{background:#2c3e50;color:#fff;padding:15px;text-align:center}
-        .chat-box{height:500px;padding:20px;overflow-y:auto;background:#f8f9fa}
-        .message{margin-bottom:15px;display:flex}
-        .user{justify-content:flex-end}
-        .ai{justify-content:flex-start}
-        .bubble{max-width:70%;padding:12px 16px;border-radius:18px;line-height:1.5;white-space:pre-line}
-        .user .bubble{background:#409eff;color:#fff}
-        .ai .bubble{background:#e5e6eb;color:#333}
-        .input-area{display:flex;padding:15px;border-top:1px solid #eee}
-        input{flex:1;padding:12px;border:1px solid #ddd;border-radius:24px;outline:0}
-        button{margin-left:10px;padding:12px 24px;background:#409eff;color:#fff;border:none;border-radius:24px}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 左侧边栏 */
+        .sidebar {
+            width: 220px;
+            background: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
+        }
+        .section-title {
+            font-size: 14px;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .btn {
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            color: #4285f4;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #f5f9ff;
+        }
+        .hot-commands {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .command-btn {
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* 中间聊天区 */
+        .main {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .chat-box {
+            flex-grow: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        .message {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        .bot-message {
+            background: #f1f3f4;
+            padding: 12px;
+            border-radius: 8px;
+            max-width: 90%;
+            white-space: pre-line;
+        }
+        .user-message {
+            background: #4285f4;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            max-width: 80%;
+            margin-left: auto;
+        }
+        .options {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            display: none;
+        }
+        .opt-btn {
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .input-area button {
+            padding: 12px 24px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* 右侧边栏 */
+        .right-sidebar {
+            width: 280px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .knowledge-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .knowledge-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 右侧高级知识库UI */
+        .knowledge-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 16px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.25s ease;
+            border-left: 4px solid transparent;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .knowledge-item:hover {
+            background: #e6f0ff;
+            color: #2962ff;
+            transform: translateX(4px);
+            border-left: 4px solid #2962ff;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        .knowledge-item .icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .system-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .system-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .system-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: #666;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h2>公考刷题助手</h2>
+    <!-- 左侧边栏 -->
+    <div class="sidebar">
+        <div>
+            <div class="section-title">快捷刷题入口</div>
+            <div class="btn-group">
+                <button class="btn" onclick="getQuestion('常识')">常识判断</button>
+                <button class="btn" onclick="getQuestion('言语')">言语理解</button>
+                <button class="btn" onclick="getQuestion('判断')">判断推理</button>
+                <button class="btn" onclick="getQuestion('数量')">数量关系</button>
+                <button class="btn" onclick="getQuestion('申论')">申论知识</button>
+                <button class="btn" onclick="showStats()">查看统计</button>
+            </div>
         </div>
-        <div class="chat-box" id="chatBox"></div>
+        <div>
+            <div class="section-title">热门指令</div>
+            <div class="hot-commands">
+                <button class="command-btn" onclick="showWrong()">查看错题本</button>
+                <button class="command-btn" onclick="getQuestion('常识')">来一道常识题</button>
+                <button class="command-btn" onclick="showStats()">我的答题情况</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 中间聊天区 -->
+    <div class="main">
+        <div class="chat-box" id="chatBox">
+            <div class="message bot-message">
+                你好！👋<br>
+                我是公考智能刷题助手，可帮你进行常识、言语、判断、数量、申论五大题型专项训练。<br>
+                你可以直接提问，或点击左侧快捷入口快速开始刷题~
+            </div>
+        </div>
+        <div class="options" id="options">
+            <button class="opt-btn" onclick="submitAnswer('A')">A</button>
+            <button class="opt-btn" onclick="submitAnswer('B')">B</button>
+            <button class="opt-btn" onclick="submitAnswer('C')">C</button>
+            <button class="opt-btn" onclick="submitAnswer('D')">D</button>
+        </div>
         <div class="input-area">
-            <input type="text" id="userInput" placeholder="输入：常识/言语/判断/数量/申论/统计/错题">
+            <input type="text" id="userInput" placeholder="输入指令开始刷题，如：常识、A、统计、错题">
             <button onclick="sendMessage()">发送</button>
         </div>
     </div>
 
+    <!-- 右侧边栏：5个链接全部绑定完成！ -->
+    <div class="right-sidebar">
+        <div class="stat-card">
+            <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px;">📊 答题数据统计</div>
+            <div style="display: flex; justify-content: space-around;">
+                <div>
+                    <div id="totalCount" style="font-size: 30px; font-weight: bold;">0</div>
+                    <div style="font-size: 12px;">总题数</div>
+                </div>
+                <div>
+                    <div id="correctCount" style="font-size: 30px; font-weight: bold;">0</div>
+                    <div style="font-size: 12px;">正确数</div>
+                </div>
+                <div>
+                    <div id="accuracy" style="font-size: 30px; font-weight: bold;">0%</div>
+                    <div style="font-size: 12px;">正确率</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="knowledge-panel">
+            <div class="knowledge-title">📚 公考知识库</div>
+            
+            <a href="https://zhuanlan.zhihu.com/p/382470342" target="_blank" class="knowledge-item">
+                <span class="icon">📖</span>宪法核心考点梳理
+            </a>
+            <a href="https://cp.baidu.com/landing/tscp_doc/b9c6fc06faea2eaef01f53f4633607f0" target="_blank" class="knowledge-item">
+                <span class="icon">✨</span>言语理解高频成语
+            </a>
+            <a href="https://zhuanlan.zhihu.com/p/689197518" target="_blank" class="knowledge-item">
+                <span class="icon">🧠</span>逻辑推理解题技巧
+            </a>
+            <a href="https://www.zhihu.com/tardis/bd/art/708785102" target="_blank" class="knowledge-item">
+                <span class="icon">📐</span>数量关系常用公式
+            </a>
+            <a href="https://zhuanlan.zhihu.com/p/686708651" target="_blank" class="knowledge-item">
+                <span class="icon">📝</span>申论公文写作格式
+            </a>
+        </div>
+
+        <div class="system-panel">
+            <div class="system-title">系统能力</div>
+            <div class="system-item">
+                <div class="dot"></div>
+                <span>RAG检索增强问答</span>
+            </div>
+            <div class="system-item">
+                <div class="dot"></div>
+                <span>公考题库智能出题</span>
+            </div>
+            <div class="system-item">
+                <div class="dot"></div>
+                <span>答案自动批改解析</span>
+            </div>
+            <div class="system-item">
+                <div class="dot"></div>
+                <span>答题数据统计分析</span>
+            </div>
+            <div class="system-item">
+                <div class="dot"></div>
+                <span>错题自动收录管理</span>
+            </div>
+        </div>
+    </div>
+
     <script>
-        window.onload = function(){
-            addMessage("👋 欢迎使用公考刷题助手\n\n支持题型：\n常识、言语、判断、数量、申论\n\n使用方式：\n• 输入题型名开始刷题\n• 输入A/B/C/D进行作答\n• 输入“统计”查看正确率\n• 输入“错题”查看错题本", 'ai');
+        let currentQid = null;
+        let currentQuestion = {};
+        let wrongQuestions = [];
+
+        // 添加消息到聊天框
+        function addMessage(text, isUser = false) {
+            const chatBox = document.getElementById("chatBox");
+            const msgDiv = document.createElement("div");
+            msgDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            msgDiv.innerHTML = text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        function sendMessage(){
-            const input = document.getElementById('userInput');
-            const msg = input.value.trim();
-            if(!msg) return;
-            addMessage(msg, 'user');
-            input.value = '';
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById("userInput");
+            const text = input.value.trim();
+            if (!text) return;
+            addMessage(text, true);
+            input.value = "";
 
-            fetch('/chat', {
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({msg:msg})
-            }).then(res=>res.json()).then(data=>{
-                addMessage(data.content, 'ai');
-            })
+            if (text.includes("常识")) {
+                getQuestion("常识");
+            } else if (text.includes("统计")) {
+                showStats();
+            } else if (text.includes("错题")) {
+                showWrong();
+            } else if (["A", "B", "C", "D"].includes(text.toUpperCase())) {
+                submitAnswer(text.toUpperCase());
+            } else {
+                addMessage("我会为你查找相关知识点...");
+            }
         }
 
-        function addMessage(text, sender){
-            const box = document.getElementById('chatBox');
-            const div = document.createElement('div');
-            div.className = 'message '+sender;
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-            bubble.textContent = text;
-            div.appendChild(bubble);
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
+        // 出题：只显示题目+选项
+        async function getQuestion(type) {
+            const res = await fetch("/random-q");
+            const q = await res.json();
+            currentQid = q.id;
+            currentQuestion = q;
+
+            let cleanContent = q.content;
+            cleanContent = cleanContent.split("答案：")[0].trim();
+            addMessage(`【${type}】题目：\n${cleanContent}`);
+            
+            document.getElementById("options").style.display = "flex";
         }
 
-        document.getElementById('userInput').addEventListener('keypress',e=>{
-            if(e.key==='Enter') sendMessage()
-        })
+        // 提交答案
+        async function submitAnswer(ans) {
+            if (!currentQid) {
+                addMessage("请先获取一道题目再作答哦~");
+                return;
+            }
+            const res = await fetch("/check-ans", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    qid: currentQid,
+                    ans: ans
+                })
+            });
+            const data = await res.json();
+
+            if (data.correct) {
+                addMessage("✅ 回答正确！");
+            } else {
+                addMessage(`❌ 回答错误，正确答案是：${data.right_ans}\n解析：${data.explain}`);
+                if (!wrongQuestions.some(item => item.id === currentQid)) {
+                    wrongQuestions.push({
+                        id: currentQid,
+                        content: currentQuestion.content,
+                        userAnswer: ans,
+                        rightAnswer: data.right_ans,
+                        explain: data.explain
+                    });
+                }
+            }
+
+            updateStats(data.correct);
+            document.getElementById("options").style.display = "none";
+            currentQid = null;
+        }
+
+        // 更新统计
+        function updateStats(isCorrect) {
+            const total = parseInt(document.getElementById("totalCount").textContent) + 1;
+            document.getElementById("totalCount").textContent = total;
+            
+            if (isCorrect) {
+                const correct = parseInt(document.getElementById("correctCount").textContent) + 1;
+                document.getElementById("correctCount").textContent = correct;
+            }
+
+            const correct = parseInt(document.getElementById("correctCount").textContent);
+            const rate = total > 0 ? Math.floor(correct / total * 100) : 0;
+            document.getElementById("accuracy").textContent = rate + "%";
+        }
+
+        // 查看统计
+        function showStats() {
+            addMessage(`📊 答题数据：\n总题数：${document.getElementById("totalCount").textContent}\n正确数：${document.getElementById("correctCount").textContent}\n正确率：${document.getElementById("accuracy").textContent}`);
+        }
+
+        // 查看错题本（不重复题目）
+        function showWrong() {
+            if (wrongQuestions.length === 0) {
+                addMessage("📚 错题本空空如也，继续加油！");
+                return;
+            }
+
+            let wrongText = `📚 错题本（共${wrongQuestions.length}题）\n`;
+            wrongQuestions.forEach((item, index) => {
+                wrongText += `\n--- 错题${index + 1} ---\n`;
+                let cleanContent = item.content.split("答案：")[0].trim();
+                wrongText += `${cleanContent}\n`;
+                wrongText += `你的答案：${item.userAnswer}\n`;
+                wrongText += `正确答案：${item.rightAnswer}\n`;
+                let cleanExplain = item.explain;
+                cleanExplain = cleanExplain.replace(/【.*】.*\nA\..*\nB\..*\nC\..*\nD\..*\n?/g, '');
+                cleanExplain = cleanExplain.replace(/答案：[A-D]\n?/g, '');
+                cleanExplain = cleanExplain.trim();
+                wrongText += `解析：${cleanExplain}\n`;
+            });
+
+            addMessage(wrongText);
+        }
     </script>
 </body>
 </html>
